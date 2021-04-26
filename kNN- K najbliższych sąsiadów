@@ -1,0 +1,28 @@
+#Zbudować modele kNN (dla k=1,2,...,20) przewidujące płeć na podstawie wzrostu i wagi. Do budowy modelu wykorzystać dane z pliku Uczenie.csv. Następnie użyć tych modeli do rozpoznania płci osób z pliku Rozpoznanie.csv. Porównać teoretyczne wartości płci z danymi zapisanymi w pliku Rozpoznanie.csv, tzn. obliczyć błąd dla każdego z modeli (warto całość powtórzyć kilka razy i wybrać to k, dla którego najczęściej błąd był najmniejszy, bo funkcja knn przy remisach dokonuje losowego przydzielenia klasy). Dla najlepszego modelu (o najmniejszej wartości błędu) wykonać wykres, na którym znajdą się punkty ze zbioru uczącego (zaznaczone na czarno), punkty ze zbioru rozpoznawanego (zaznaczone na niebiesko) i kontury klas. W odpowiedzi proszę podać k, dla którego błąd wyszedł najmniejszy oraz przesłać wykres (plik graficzny lub pdf - w RStudio nad wykresem jest przycisk "Export").
+#Import danych:
+Uczenie <- read.csv("C:/Users/klard/Downloads/Uczenie(1).csv", sep=";")
+Rozpoznanie <- read.csv("C:/Users/klard/Downloads/Rozpoznanie(1).csv", sep=";")
+
+#Budowanie funkcji, która wylicza model, a jej wynikiem jest błąd modelu
+model_knn<-function(i){
+model=knn(cbind(Uczenie$wzrost,Uczenie$waga),cbind(Uczenie$wzrost,Uczenie$waga),Uczenie$plec,k=i)
+return(1-sum(model==Rozpoznanie$plec)/length(Rozpoznanie$plec))
+}
+#Pogląd błedu modeli
+model_knn(1)
+…
+Model_knn(20)
+#Model z k=4 i k=5 mają taką samą wielkość na przybliżeniu, dlatego tworze z nich wektor i funkcją min sprawdzam, który jest mniejszy.
+A=c(model_knn(4),model_knn(5))
+A
+min(A)
+#Modelem, który ma najmniejszy błąd jest model z k=4. Błąd wynosi: 0,49.
+#Tworzenie wykresu:
+plot(Uczenie$wzrost, Uczenie$waga, xlab="Wzrost",ylab="Waga", col='black', pch = 20)
+attach(Uczenie)
+x=seq(min(wzrost),max(wzrost),length=100)
+y=seq(min(waga),max(waga),length=100)
+siatka <- expand.grid(wzrost=x,waga=y)
+pred=knn(cbind(wzrost, waga),siatka,plec,k=4)
+m=matrix(as.numeric(pred),ncol=100,nrow=100)
+contour(x,y,m,add=TRUE,levels=c(1.5,2.5))
